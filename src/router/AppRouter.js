@@ -1,39 +1,46 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from "react";
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Redirect,
-  } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-import { ChatPage } from '../pages/ChatPage';
-import { AuthRouter } from './AuthRouter';
-
+import { ChatPage } from "../pages/ChatPage";
+import { AuthRouter } from "./AuthRouter";
+import { PrivateRoute } from "./PrivateRoute";
+import { PublicRoute } from "./PublicRoute";
 
 export const AppRouter = () => {
+  const { verificarToken, auth } = useContext(AuthContext);
 
-    const { verificarToken,auth } = useContext(AuthContext)
+  useEffect(() => {
+    verificarToken();
+  }, [verificarToken]);
+  if (auth.checking) {
+    return <h1>Espere por favor....</h1>;
+  }
 
-    useEffect(() => {
-        verificarToken()
-    },[verificarToken])
-    if(auth.checking) { 
+  return (
+    <Router>
+      <div>
+        <Switch>
+          <PublicRoute
+            path="/auth"
+            component={AuthRouter}
+            isAuthenticated={auth.logged}
+          />
+          <PrivateRoute
+            exact
+            path="/"
+            component={ChatPage}
+            isAuthenticated={auth.logged}
+          />
 
-        return <h1>Espere por favor....</h1>
-    }
-
-    return (
-        <Router>
-            <div>
-                
-                <Switch>
-                    <Route path="/auth" component={ AuthRouter } />
-                    <Route exact path="/" component={ ChatPage } />
-
-                    <Redirect to="/" />
-                </Switch>
-            </div>
-            </Router>
-    )
-}
+          <Redirect to="/" />
+        </Switch>
+      </div>
+    </Router>
+  );
+};

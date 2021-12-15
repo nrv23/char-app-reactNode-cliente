@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         token,
         usuario: { Online, email: emailUser, nombre, uid },
       } = await fetchSinToken("/auth/", { email, password }, "POST");
-
+      localStorage.setItem("token", token);
       setAuth({
         uid,
         checking: false,
@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }) => {
         name: nombre,
         email: emailUser,
       });
-      localStorage.setItem("token", token);
 
       return true;
     } catch (error) {
@@ -92,7 +91,7 @@ export const AuthProvider = ({ children }) => {
       const {
         token: nuevoToken,
         usuario: { Online, email: emailUser, nombre: nombreUser, uid },
-      } = await fetchConToken("auth/renew-token");
+      } = await fetchConToken("/auth/renew-token");
       setAuth({
         uid,
         checking: false,
@@ -100,6 +99,7 @@ export const AuthProvider = ({ children }) => {
         name: nombreUser,
         email: emailUser,
       });
+      console.log(nuevoToken);
       localStorage.setItem("token", nuevoToken);
       return true;
     } catch (error) {
@@ -115,7 +115,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, []); // usar la misma instancia de la funcion aunque se renderice muchas veces el mismo componente
   // useMemo se usa para memorizar variables que guardan resultados de funciones, useCallabck se usa para memorizar funciones
-  const logout = () => {};
+  const logout = () => {
+    localStorage.removeItem("token");
+    setAuth({
+      checking: false,
+      logged: false,
+    });
+  };
   return (
     <AuthContext.Provider
       value={{
