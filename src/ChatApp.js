@@ -1,18 +1,17 @@
 import { AuthProvider } from "./context/AuthContext";
-import { ChatProvider } from "./context/chat/ChatReducer";
+import { ChatProvider } from "./context/chat/ChatContext";
 import { SocketProvider } from "./context/SocketContext";
-
 import { AppRouter } from "./router/AppRouter";
 
 function ChatApp() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <ChatProvider>
+    <ChatProvider>
+      <AuthProvider>
+        <SocketProvider>
           <AppRouter />
-        </ChatProvider>
-      </SocketProvider>
-    </AuthProvider>
+        </SocketProvider>
+      </AuthProvider>
+    </ChatProvider>
   );
 }
 

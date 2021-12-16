@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect } from "react";
 import { useSocket } from "../hooks/useSocket";
+import { types } from "../types";
 import { AuthContext } from "./AuthContext";
+import { ChatContext } from "./chat/ChatContext";
 
 export const SocketContext = createContext();
 
@@ -10,6 +12,8 @@ export const SocketProvider = ({ children }) => {
   const { online, socket, conectarSocket, desconectarSocket } = useSocket(
     "http://localhost:8081"
   );
+
+  const { dispatch } = useContext(ChatContext);
   const {
     auth: { logged },
   } = useContext(AuthContext);
@@ -25,8 +29,19 @@ export const SocketProvider = ({ children }) => {
       // si la persona ha cerrado sesion, el socket se desconecta del servidor
 
       desconectarSocket(); // como la funcion esta memorizada  siempre va renderizar la misma instancia de la funcion de conectarSocket
+
+      //lista-usuarios
     }
   }, [logged, desconectarSocket]);
+
+  useEffect(() => {
+    socket?.on("lista-usuarios", (data) => {
+      dispatch({
+        type: types.usuariosCargados,
+        payload: data,
+      });
+    });
+  }, [socket, dispatch]);
   return (
     <SocketContext.Provider value={{ online, socket }}>
       {children}
