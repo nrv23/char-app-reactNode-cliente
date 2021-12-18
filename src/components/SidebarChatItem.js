@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { ChatContext } from "../context/chat/ChatContext";
 import { types } from "../types";
-
+import { fetchConToken } from '../helpers/fetch'
+import { scrollToBottom } from "../helpers/ScrollToBottom";
 export const SidebarChatItem = ({ usuario: { nombre, Online, uid } }) => {
   //active_chat clase para saber cuanto un chat está activo
 
@@ -9,11 +10,24 @@ export const SidebarChatItem = ({ usuario: { nombre, Online, uid } }) => {
     dispatch,
     chatState: { chatActivo },
   } = useContext(ChatContext);
-  const activarChat = () => {
+
+  const activarChat = async () => {
     dispatch({
       type: types.activarChat,
       payload: uid,
     });
+
+    // cargar los mensajes del chat
+
+    const resp = await fetchConToken(`/mensajes/${uid}`);
+
+    dispatch({
+      type: types.cargarChat,
+      payload: resp
+    });
+    //mover el scroll hacia el ultimo mensaje
+    scrollToBottom('historiaMensajes');
+
   };
 
   return (

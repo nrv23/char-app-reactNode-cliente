@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { ChatContext } from "../context/chat/ChatContext";
+import { SocketContext } from "../context/SocketContext";
 import useForm from "../hooks/useForm";
 
 export const SendMessage = () => {
+  
+  const { socket} = useContext(SocketContext);
+  const { auth: { uid }} = useContext(AuthContext);
+  const {chatState:{chatActivo}} = useContext(ChatContext);
   const [formValues, handleInputChange, reset] = useForm({
     mensaje: "",
   });
@@ -11,7 +18,15 @@ export const SendMessage = () => {
     e.preventDefault();
 
     if (mensaje.trim().length === 0) return;
-    console.log("enviar");
+
+
+    socket.emit('mensaje-personal', {
+      de: uid,
+      para: chatActivo,
+      mensaje
+    });
+
+    reset();
   };
   return (
     <form onSubmit={handleSubmit}>

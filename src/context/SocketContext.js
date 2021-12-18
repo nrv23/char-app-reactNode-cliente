@@ -3,6 +3,8 @@ import { useSocket } from "../hooks/useSocket";
 import { types } from "../types";
 import { AuthContext } from "./AuthContext";
 import { ChatContext } from "./chat/ChatContext";
+import Swal from 'sweetalert2';
+import { scrollToBottomAnimated } from "../helpers/ScrollToBottom";
 
 export const SocketContext = createContext();
 
@@ -42,6 +44,26 @@ export const SocketProvider = ({ children }) => {
       });
     });
   }, [socket, dispatch]);
+
+  useEffect(() => {
+    socket?.on('mensaje-personal',payload => {
+      if(!payload) {
+        return Swal.fire('Nuevo Mensaje','No se pudo enviar el mensaje','error');
+      }
+      
+      //actualizar elstate de los mensajes
+      console.log(payload);
+
+      dispatch({ 
+        type: types.agregarMensaje,
+        payload
+      })
+
+      //mover el scroll hacia abajo en el ultimo mensaje
+
+      scrollToBottomAnimated('historiaMensajes');
+    })
+  },[socket,dispatch])
   return (
     <SocketContext.Provider value={{ online, socket }}>
       {children}
